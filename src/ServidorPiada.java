@@ -1,6 +1,10 @@
 import java.io.*;
 import java.net.*;
 
+/*
+* @autor Edilson do Nascimento
+* Esta classe cria um servidor UDP, lê o aquivo de piadas.txt na raiz do projeto e envia uma piada a cada solicitação do cliente.
+ */
 public class ServidorPiada {
 
     public static void main(String[] args) throws IOException {

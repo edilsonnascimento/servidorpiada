@@ -1,6 +1,10 @@
 import java.io.*;
 import java.net.*;
 
+/*
+ * @autor Edilson do Nascimento
+ * Esta classe solicita uma piada ao servidor a cada conexão UDP.
+ */
 public class ClientePiada {
 
     private static boolean acabouPiadas = false;
