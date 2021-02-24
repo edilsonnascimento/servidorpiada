@@ -1,30 +1,37 @@
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 
 public class ServidorPiada {
 
-    private static final String PIADA = "O que cai em pé e corre deitado? R: A chuva!";
-
     public static void main(String[] args) throws IOException {
 
-        DatagramSocket datagramSocket = new DatagramSocket(7777);
-        byte[] mensagem = new byte[128];
+        DatagramSocket serverSocket = new DatagramSocket(7777);
+        byte[] mensagem = new byte[1024];
+        //abre arquivo de piada para leitura
+        BufferedReader arquivoLeitura = new BufferedReader(new FileReader(new File("piadas.txt")));
+        boolean continua = true;
 
-        DatagramPacket datagramPacket = new DatagramPacket(mensagem, mensagem.length);
+        while(continua) {
 
-        datagramSocket.receive(datagramPacket);
+            DatagramPacket pacoteReceber = new DatagramPacket(mensagem, mensagem.length);
+            serverSocket.receive(pacoteReceber);
 
-        String msg = new String(datagramPacket.getData());
-        System.out.println("A mensagem recebida eh: " + msg);
+            String mensagemCliente = new String(pacoteReceber.getData());
+            System.out.println("A mensagem recebida eh: " + mensagemCliente);
 
-        InetAddress inetAddress = datagramPacket.getAddress();
-        int porta = datagramPacket.getPort();
+            InetAddress enderecoCliente = pacoteReceber.getAddress();
+            int portaCliente = pacoteReceber.getPort();
 
-        mensagem = PIADA.getBytes();
+            if(arquivoLeitura.ready()) {
+                String piada = arquivoLeitura.readLine();
+                byte[] piadaEnviar = piada.getBytes();
+                DatagramPacket pacoteEnviar = new DatagramPacket(piadaEnviar, piadaEnviar.length, enderecoCliente, portaCliente);
+                serverSocket.send(pacoteEnviar);
+            }
 
-        datagramPacket = new DatagramPacket(mensagem, mensagem.length, inetAddress, porta);
-
-        datagramSocket.send(datagramPacket);
-
+        }
+        arquivoLeitura.close();
+        serverSocket.close();
     }
+
 }

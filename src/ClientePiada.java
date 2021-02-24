@@ -1,30 +1,52 @@
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 
 public class ClientePiada {
 
-    public static void main(String[] args) throws IOException {
+    private static boolean acabouPiadas = false;
 
-        DatagramSocket datagramSocket = new DatagramSocket();
-        byte[] mensagem = new byte[128];
+    public static void main(String[] args) {
 
-        //Envio de mensagem
-        String msg = "Quero uam piada.";
-        mensagem = msg.getBytes();
+        while(!acabouPiadas){
+            solicitaPiadaServidor();
+        }
 
-        InetAddress inetAddress = InetAddress.getByName("localhost");
+    }
 
-        DatagramPacket datagramPacket = new DatagramPacket(mensagem, mensagem.length, inetAddress, 7777);
+    private static void solicitaPiadaServidor() {
 
-        datagramSocket.send(datagramPacket);
+        try {
 
-        //Recebimento de mensagem
-        mensagem = new byte[128];
-        datagramPacket = new DatagramPacket(mensagem, mensagem.length);
+            DatagramSocket socketCliente = new DatagramSocket();
+            InetAddress endereco = InetAddress.getByName("localhost");
+            int porta = 7777;
+            byte[] mensagemEnvio = new byte[1024];
 
-        datagramSocket.receive(datagramPacket);
+            //Envio de mensagemEnvio
+            String mensagem = "Quero uma piada.";
+            mensagemEnvio = mensagem.getBytes();
+            DatagramPacket pacoteEnvio = new DatagramPacket(mensagemEnvio, mensagemEnvio.length, endereco, porta);
+            socketCliente.send(pacoteEnvio);
 
-        String piada = new String(datagramPacket.getData());
-        System.out.println(piada);
+            //Recebimento
+            byte[] mensagemRecebida = new byte[1024];
+             DatagramPacket pacoteRecebido = new DatagramPacket(mensagemRecebida, mensagemRecebida.length);
+
+            socketCliente.receive(pacoteRecebido);
+
+            String piadaRecebida = new String(pacoteRecebido.getData());
+
+            System.out.println(piadaRecebida);
+
+           if(piadaRecebida.contains("Sem mais piadas para enviar")){
+                acabouPiadas = true;
+            }
+
+            socketCliente.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
